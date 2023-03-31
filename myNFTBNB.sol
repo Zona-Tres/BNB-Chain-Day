@@ -8,15 +8,19 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract Zona3BNB is ERC721, ERC721Enumerable, Ownable {
     using Counters for Counters.Counter;
+    
 
     Counters.Counter private _tokenIdCounter;
+    uint256 public minRate = 1 ether;
+    uint public maxSuply = 3;
 
     constructor() ERC721("Zona3BNB", "Z3B") {}
 
-    function safeMint(address to) public onlyOwner {
-        uint256 tokenId = _tokenIdCounter.current();
+    function safeMint(address to) public payable {
+        require(totalSupply() < maxSuply, "Can't mint more");
+        require(msg.value >= minRate, "Wrong Amount");
         _tokenIdCounter.increment();
-        _safeMint(to, tokenId);
+        _safeMint(to, _tokenIdCounter.current());
     }
 
     // The following functions are overrides required by Solidity.
@@ -36,4 +40,9 @@ contract Zona3BNB is ERC721, ERC721Enumerable, Ownable {
     {
         return super.supportsInterface(interfaceId);
     }
+
+    //function withdraw() public onlyOwner {
+    //    require(address(this).balance > 0, "Balance is zero");
+    //    payable(owner()).transfer(address(this).balance);
+    //}
 }
